@@ -92,7 +92,10 @@ playwright_project/
 ├── scheduler/
 │   └── scheduled_task.xml
 │
-└── logs/   (excluded from version control)
+└── logs/   (generated at runtime)
+    ├── python/      (Python layer logs, with rolling files)
+    ├── powershell/  (PowerShell layer logs, with rolling files)
+    └── vba/         (VBA layer logs, with rolling files)
 ```
 
 ---
