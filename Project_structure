@@ -1,0 +1,33 @@
+PLAYWRIGHT_PROJECT/
+│
+├── logs/
+│   ├── powershell/
+│   │   └── ps.log
+│   ├── python/
+│   │   └── py.log
+│   └── vba/
+│       └── macro.log
+│
+├── pages/ 
+│   ├── export_page.py
+│   ├── login_page.py
+│   └── outbound_page.py
+│
+├── scripts/
+│   ├── logs.psm1
+│   └── open_vba.ps1
+│
+├── task/
+│   └── scheduled_task.xml
+│
+├── utils/
+│   ├── close_popups.py
+│   ├── date_folder.py
+│   ├── download.py
+│   ├── logging_setup.py
+│
+├── config.py
+├── Instruction.md
+├── main.py
+├── Project_structure
+└── run.ps1
