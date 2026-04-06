@@ -4,13 +4,14 @@
 
 This project implements an end-to-end automated data pipeline that integrates web automation, system scripting, and Excel-based data processing.
 
-The pipeline performs:
+The pipeline:
 
-* Automated data extraction via browser automation
-* Scheduled execution through Windows Task Scheduler
-* Cross-environment orchestration (Python → PowerShell → VBA)
-* Structured logging across all layers
-* Automated generation of pivot table reports
+* Logs into a web system using Playwright
+* Queries and exports outbound data
+* Downloads Excel files automatically
+* Processes the data using Excel VBA
+* Generates pivot table reports
+* Runs on a schedule via Windows Task Scheduler
 
 ---
 
@@ -50,74 +51,24 @@ This demonstrates a full-stack automation workflow beyond a single language ecos
 
 ### 2. Layered Logging System (Core Design)
 
-A structured logging mechanism is implemented across all components:
+The pipeline implements layered logging across Python, PowerShell, and VBA, where:
 
-#### Python Layer
+* Each layer records its own details
+* Only high-level success/failure signals are passed upstream
+* Logs are persisted with rolling file strategy (2 MB per file, 5 backups)
 
-* Tracks workflow execution
-* Logs success/failure of subprocess calls (PowerShell)
-* Does not capture deep system errors intentionally (delegated downstream)
-
-#### PowerShell Layer
-
-* Logs execution steps (Excel open, macro execution)
-* Captures runtime exceptions (e.g. COM errors)
-* Acts as a bridge between Python and VBA
-
-#### VBA Layer
-
-* Logs detailed business logic execution
-* Captures fine-grained errors during data processing
-* Provides the most detailed debugging information
+This ensures clear separation of concerns, minimal noise in higher layers, and deep traceability when debugging is needed.
 
 ---
 
-### Logging Flow
-
-```text
-Python → (status only)
-   ↓
-PowerShell → (execution + error summary)
-   ↓
-VBA → (detailed root cause)
-```
-
-This design ensures:
-
-* Clear separation of concerns
-* Minimal noise in higher layers
-* Deep traceability when needed
-
----
-
-### 3. Rolling Log Mechanism
-
-All logging layers implement a rolling file strategy:
-
-* Max file size: **2 MB**
-* Max backups: **5 files**
-* Format:
-
-  * `py.log`, `py.log.1` ... `py.log.5`
-  * `ps.log`, `ps.log.1` ... `ps.log.5`
-  * `macro.log`, `macro.log.1` ... `macro.log.5`
-
-Benefits:
-
-* Prevents uncontrolled log growth
-* Preserves recent history for debugging
-* Suitable for long-running scheduled jobs
-
----
-
-### 4. Scheduled Execution
+### 3. Scheduled Execution
 
 The pipeline is fully automated using Windows Task Scheduler:
 
 * Multiple daily triggers
 * No manual intervention required
-* Executes via PowerShell wrapper (`run.ps1`)
-
+* Executes via PowerShell wrapper (run.ps1)
+* 
 ---
 
 ## Project Structure
@@ -166,22 +117,3 @@ config.py
 ```
 
 These values are intentionally masked in this repository.
-
----
-
-## Error Handling Strategy
-
-The system follows a hierarchical error tracing model:
-
-| Layer      | Responsibility                      |
-| ---------- | ----------------------------------- |
-| Python     | Detects failure (high-level status) |
-| PowerShell | Captures execution errors           |
-| VBA        | Provides detailed root cause        |
-
-Example:
-
-* Python logs: `PowerShell FAILED`
-* PowerShell logs: COM exception
-* VBA logs: exact processing error
-
